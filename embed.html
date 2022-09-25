@@ -55,8 +55,10 @@
 
             if(filter[i].transport.transportSubType) $("#line-" + (i + 1)).css("background", colors[filter[i].transport.transportSubType.toUpperCase()] || "#000");
 
-            if(filter[i].transport.line.length < 3) {
-              $("#line-" + (i + 1)).css("padding", "3px 10px");
+            if(filter[i].transport.line.length == 1) {
+              $("#line-" + (i + 1)).css("padding", "3px 14px");
+            } else if(filter[i].transport.line.length < 3) {
+              $("#line-" + (i + 1)).css("padding", "3px 10px"); 
             } else {
               $("#line-" + (i + 1)).css("padding", "3px 6px");
             }
