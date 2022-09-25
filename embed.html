@@ -54,7 +54,12 @@
             $("#time-" + (i + 1)).text(filter[i].time.displayTime);
 
             if(filter[i].transport.transportSubType) $("#line-" + (i + 1)).css("background", colors[filter[i].transport.transportSubType.toUpperCase()] || "#000");
-            if(filter[i].transport.line.length < 3) $("#line-" + (i + 1)).css("padding", "3px 10px");
+
+            if(filter[i].transport.line.length < 3) {
+              $("#line-" + (i + 1)).css("padding", "3px 10px");
+            } else {
+              $("#line-" + (i + 1)).css("padding", "3px 6px");
+            }
         
             $("#message").delay(200).fadeIn(200);
           }
