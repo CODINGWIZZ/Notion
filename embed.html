@@ -18,13 +18,11 @@
       <span id="line-1"></span>
       <span id="destination-1"></span>
       <span id="time-1"></span>
-      <br>
-      <br>
+      <br><br>
       <span id="line-2"></span>
       <span id="destination-2"></span>
       <span id="time-2"></span>
-      <br>
-      <br>
+      <br><br>
       <span id="line-3"></span>
       <span id="destination-3"></span>
       <span id="time-3"></span>
@@ -33,7 +31,8 @@
   <script>
     $("#message").hide();
 
-    var proxyURL = "https://cors-anywhere.herokuapp.com/";
+    var proxyURL = "https://dev.codingwizz.repl.co/proxy?url=";
+    var URL = "https://webcloud.sl.se/api/v2/departures?mode=departures&origPlaceId=QT0xQE89R3VsbG1hcnNwbGFuIChTdG9ja2hvbG0pQFg9MTgwODA5MzlAWT01OTI5ODQyMkBVPTc0QEw9MzAwMTA5MTg5QEI9MUBwPTE2NjM5ODQ4MjFA&origSiteId=9189&desiredResults=3&origName=Gullmarsplan+%28Stockholm%29";
 
     var colors = {
       "RED": "#EF473D",
@@ -42,7 +41,7 @@
     }
 
     function getData() {
-      fetch(proxyURL + "https://webcloud.sl.se/api/v2/departures?mode=departures&origPlaceId=QT0xQE89R3VsbG1hcnNwbGFuIChTdG9ja2hvbG0pQFg9MTgwODA5MzlAWT01OTI5ODQyMkBVPTc0QEw9MzAwMTA5MTg5QEI9MUBwPTE2NjM5ODQ4MjFA&origSiteId=9189&desiredResults=3&origName=Gullmarsplan+%28Stockholm%29")
+      fetch(proxyURL + encodeURIComponent(URL))
       .then(res => res.json())
       .then(data => {
         // var filter = data.filter(data => data.transport.line === "4");
@@ -60,17 +59,6 @@
             $("#message").delay(200).fadeIn(200);
           }
         }
-
-        // if(filter[0]) {
-        //   $("#line").text(filter[0].transport.line);
-        //   $("#destination").text(filter[0].transport.destination);
-        //   $("#time").text(filter[0].time.displayTime);
-
-        //   if(filter[0].transport.transportSubType) $("#line").css("background", colors[filter[0].transport.transportSubType.toUpperCase()]);
-        //   if(filter[0].transport.line.length < 3) $("#line").css("padding", "3px 10px");
-      
-        //   $("#message").delay(200).fadeIn(200);
-        // }
       });
     }
 
@@ -106,14 +94,16 @@
     }
 
     #destination-1, #destination-2, #destination-3 {
+      position: fixed;
       margin-left: 5px;
+      left: 55px;
     }
 
     #time-1, #time-2, #time-3 {
       position: fixed;
       margin-left: 20px;
       opacity: 0.8;
-      left: 250px;
+      left: 270px;
     }
   </style>
 </html>
