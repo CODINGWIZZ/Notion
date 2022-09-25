@@ -1,0 +1,76 @@
+[
+  [
+    {
+      "subject": "Kemi 1",
+      "start": "09:55",
+      "end": "11:55",
+      "classroom": "603"
+    },
+    {
+      "subject": "Design 1",
+      "start": "12:40",
+      "end": "15:10",
+      "classroom": "502"
+    },
+    {
+      "subject": "Idrott och hälsa 1",
+      "start": "15:20",
+      "end": "16:20",
+      "classroom": "603"
+    }
+  ],
+  [
+    {
+      "subject": "Mentorstid",
+      "start": "08:30",
+      "end": "09:00",
+      "classroom": "504"
+    },
+    {
+      "subject": "STUPA",
+      "start": "09:00",
+      "end": "11:00",
+      "classroom": "504"
+    },
+    {
+      "subject": "Engelska 6",
+      "start": "11:45",
+      "end": "14:15",
+      "classroom": "504"
+    },
+    {
+      "subject": "Matematik 3c",
+      "start": "14:25",
+      "end": "15:40",
+      "classroom": "504"
+    }
+  ],
+  [
+    {
+      "subject": "Fysik 1a",
+      "start": "10:00",
+      "end": "11:50",
+      "classroom": "604"
+    },
+    {
+      "subject": "Fysik 1a",
+      "start": "12:35",
+      "end": "14:25",
+      "classroom": "604"
+    }
+  ],
+  [
+    {
+      "subject": "Digitalt skapande 1",
+      "start": "09:20",
+      "end": "11:50",
+      "classroom": "514"
+    },
+    {
+      "subject": "Matematik 3c",
+      "start": "12:25",
+      "end": "13:35",
+      "classroom": "603"
+    }
+  ]
+]
