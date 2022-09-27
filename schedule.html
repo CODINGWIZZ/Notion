@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +20,7 @@
       <div id="subject"></div>
       <div id="countdown"></div>
       <div id="times"></div>
+      <div id="ongoing"></div>
     </div>
   </body>
   <script>
@@ -27,110 +29,119 @@
     fetch("https://codingwizz.github.io/Notion/schedule.json")
     .then(res => res.json())
     .then(data => {
-      function schedule() {
-        var date = new Date();
-        var day = date.getDay() == 0 ? 6 : date.getDay() - 1;
-  
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
-  
-        var daysDifference = 0;
-  
+      setInterval(function() {
+        var day = moment().isoWeekday() - 1;
+        var dayDifference = 0;
+
         while(!data[day]) {
           day++;
-          daysDifference++;
+          dayDifference++;
+
           if(day > 6) day = 0;
-  
-          hours = 0;
-          minutes = 0;
-          seconds = 0;
         }
-  
-        var lessions = data[day];
-  
-        var timeInSeconds = hours * 60 * 60 + minutes * 60 + seconds;
-  
-        var map = lessions.map(data => data.start);
-        var last = map[map.length - 1].split(":");
-  
-        var lowestNumber = parseInt(last[0]) * 60 * 60 + parseInt(last[1]) * 60;
-        var lowestTime = last[0] + ":" + last[1];
-        var index = 0;
-  
-        for(var i = 0; i < map.length; i++) {
-          var result = map[i];
-          var time = result.substring(0, 5);
-  
-          var split = time.split(":");
-          var splitInSeconds = split[0] * 60 * 60 + split[1] * 60;
-  
-          if(splitInSeconds < lowestNumber && timeInSeconds < splitInSeconds) {
-            lowestNumber = splitInSeconds;
-            lowestTime = time;
-  
-            index = i;
+
+        var schedule = [];
+        var array = [];
+
+        for(var i = 0; i < data.length; i++) {
+          for(var y = 0; y < data[i].length; y++) {
+            var lession = data[i][y];
+
+            var current = moment().format("DD/MM/YYYY");
+            var add = moment(current, "DD/MM/YYYY").add(dayDifference + i - day, "days").add(lession.start.split(":")[0], "hours").add(lession.start.split(":")[1], "minutes").format("DD/MM/YYYY HH:mm");
+
+            if(i >= day) {
+              schedule.push(add);
+
+              lession.date = add;
+              array.push(lession);
+            }
           }
         }
+
+        var next = schedule.map(function(s) {
+          return moment(s, "DD/MM/YYYY HH:mm");
+        })
+        .sort(function(m) {
+          return m.valueOf();
+        })
+        .find(function(m) {
+          return m.isAfter();
+        });
+
+        if(next) {
+          var date = next.format("DD/MM/YYYY HH:mm");
+
+          var index = array.findIndex(element => {
+            if(element.date === date) return true;
+            return false;
+          });
+
+          var lession = array[index];
   
-        if(timeInSeconds > splitInSeconds) {
-          day++;
-          if(day > 6) day = 0;
+          var currentTime = new Date().getTime();
+          var startTime = moment(lession.date, "DD/MM/YYYY HH:mm").valueOf();
   
-          while(!data[day]) {
-            day++;
-            if(day > 6) day = 0;
+          var difference = startTime - currentTime;
+          var duration = moment.duration(difference);
+  
+          var hoursSplit = duration.asHours().toString().split(".");
+          var hours = parseInt(hoursSplit[0]);
+  
+          var minutes = Math.floor(parseFloat("0." + hoursSplit[1]) * 60);
+          var seconds = Math.floor(parseFloat("0." + hoursSplit[1]) * 60 * 60) - minutes * 60;
+  
+          lession.countdown = { hours, minutes, seconds };
+
+          function ongoing() {
+            for(var i = 0; i < array.length; i++) {
+              var current = moment();
+              var lessionStart = moment(array[i].date, "DD/MM/YYYY HH:mm");
+              var lessionEnd = moment(array[i].date.replace(array[i].start, array[i].end), "DD/MM/YYYY HH:mm");
+
+              if(current.isBetween(lessionStart, lessionEnd)) return array[i];
+            }
+
+            return false;
           }
-  
-          lowestNumber = data[day][0].start;
-          lowestTime = data[day][0].start;
-          index = 0;
+
+          if(ongoing()) {
+            var ongoingLession = ongoing();
+            var ongoingEnd = moment(ongoingLession.date.replace(ongoingLession.start, ongoingLession.end), "DD/MM/YYYY HH:mm").valueOf();
+
+            var difference = ongoingEnd - currentTime;
+            var duration = moment.duration(difference);
+
+            var hoursSplit = duration.asHours().toString().split(".");
+            var hours = parseInt(hoursSplit[0]);
+
+            var minutes = Math.floor(parseFloat("0." + hoursSplit[1]) * 60);
+            var seconds = Math.floor(parseFloat("0." + hoursSplit[1]) * 60 * 60) - minutes * 60;
+
+            var ongoingStart = moment(ongoingLession.date, "DD/MM/YYYY HH:mm").valueOf();
+            var ongoingTimeDifference = currentTime - ongoingStart;
+            var ongoingDuration = moment.duration(ongoingTimeDifference);
+
+            var ongoingHoursSplit = ongoingDuration.asHours().toString().split(".");
+            var ongoingHours = parseInt(ongoingHoursSplit[0]);
+            var ongoingMinutes = Math.floor(parseFloat("0." + ongoingHoursSplit[1]) * 60);
+
+            $("#classroom").text(ongoingLession.classroom);
+            $("#subject").text(ongoingLession.subject);
+            $("#countdown").text(hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
+            $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
+            $("#ongoing").text("Pågående " + (ongoingHours == 0 ? ongoingMinutes + "m" : ongoingHours + "h " + ongoingMinutes + "m"));
+
+            if($("#ongoing").is(":hidden")) $("#ongoing").fadeIn(200);
+          } else {
+            if($("#ongoing").is(":visible")) $("#ongoing").fadeOut(200);
+
+            $("#classroom").text(lession.classroom);
+            $("#subject").text(lession.subject);
+            $("#countdown").text(lession.countdown.hours.toString().padStart(2, "0") + ":" + lession.countdown.minutes.toString().padStart(2, "0") + ":" + lession.countdown.seconds.toString().padStart(2, "0"));
+            $("#times").text(lession.start + "-" + lession.end);
+          }
         }
-  
-        hours = date.getHours();
-        minutes = date.getMinutes();
-        seconds = date.getSeconds();
-  
-        var result = lessions[index];
-
-        $("#classroom").text(result.classroom);
-        $("#subject").text(result.subject);
-        $("#times").text(result.start + "-" + result.end);
-
-        return { daysDifference, lowestNumber, lowestTime };
-      }
-
-      var { daysDifference, result, lowestNumber, lowestTime } = schedule();
-
-      function addSeconds(seconds, date = new Date()) {
-        date.setTime(date.getTime() + seconds * 1000);
-        return date;
-      }
-
-      var x = setInterval(function() {
-        var countdownDate = null;
-  
-        if(daysDifference > 0) {
-          var daysInSeconds = daysDifference * 24 * 60 * 60;
-          var difference = daysInSeconds - lowestNumber;
-  
-          countdownDate = new Date(new Date(addSeconds(difference)).toISOString().split("T")[0] + "T" + lowestTime + ":00").getTime();
-        } else {
-          var currentDate = new Date();
-          countdownDate = addSeconds(lowestNumber, currentDate.getFullYear() + "-" + currentDate.getMonth().padStart(2, "0") + "-" + currentDate.getDate().padStart(2, "0") + "T00:00:00").getTime();
-        }
-  
-        var now = new Date().getTime();
-        var difference = countdownDate - now;
-  
-        var countdownDays = Math.floor(difference / (1000 * 60 * 60 * 24));
-        var countdownHours = Math.floor(countdownDays * 24 + (difference %  (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        var countdownMinutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-        var countdownSeconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-        $("#countdown").text(countdownHours.toString().padStart(2, "0") + ":" + countdownMinutes.toString().padStart(2, "0") + ":" + countdownSeconds.toString().padStart(2, "0"));
-
-        if(difference < 0) schedule();
       }, 1000);
 
       $("#message").delay(1000).fadeIn(200);
@@ -178,6 +189,13 @@
     #times {
       position: fixed;
       top: 55px;
+    }
+
+    #ongoing {
+      position: fixed;
+      top: 55px;
+      left: 200px;
+      opacity: 0.7;
     }
   </style>
 </html>
