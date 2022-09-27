@@ -17,6 +17,7 @@
   <body>
     <div id="message">
       <div id="classroom"></div>
+      <div id="percent"></div>
       <div id="subject"></div>
       <div id="countdown"></div>
       <div id="times"></div>
@@ -126,15 +127,20 @@
             var ongoingHours = parseInt(ongoingHoursSplit[0]);
             var ongoingMinutes = Math.floor(parseFloat("0." + ongoingHoursSplit[1]) * 60);
 
+            var percent = Math.floor(currentTime / ongoingEnd * 100);
+
             $("#classroom").text(ongoingLession.classroom);
+            $("#percent").text(percent + "%");
             $("#subject").text(ongoingLession.subject);
             $("#countdown").text(hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
             $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
             $("#ongoing").text("Pågående " + (ongoingHours == 0 ? ongoingMinutes + "m" : ongoingHours + "h " + ongoingMinutes + "m"));
 
             if($("#ongoing").is(":hidden")) $("#ongoing").fadeIn(200);
+            if($("#percent").is(":hidden")) $("#percent").fadeIn(200);
           } else {
             if($("#ongoing").is(":visible")) $("#ongoing").fadeOut(200);
+            if($("#percent").is(":visible")) $("#percent").fadeOut(200);
 
             $("#classroom").text(lession.classroom);
             $("#subject").text(lession.subject);
@@ -167,6 +173,18 @@
       position: fixed;
       background: #000;
       color: #FFF;
+      padding: 3px 7px;
+      border-radius: 2.5px;
+      font-weight: 600;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    #percent {
+      position: fixed;
+      left: 45px;
+      box-shadow: inset 0px 0px 0px 1.5px #C8C8C8;
+      color: #000;
       padding: 3px 7px;
       border-radius: 2.5px;
       font-weight: 600;
