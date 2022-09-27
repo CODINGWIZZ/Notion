@@ -25,8 +25,6 @@
     </div>
   </body>
   <script>
-    $("#message").hide();
-
     fetch("https://codingwizz.github.io/Notion/schedule.json")
     .then(res => res.json())
     .then(data => {
@@ -167,6 +165,7 @@
 
     #message {
       position: absolute;
+      display: none;
     }
 
     #classroom {
@@ -190,6 +189,7 @@
       font-weight: 600;
       font-size: 11px;
       text-align: center;
+      display: none;
     }
 
     #subject {
