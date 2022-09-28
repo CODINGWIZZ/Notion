@@ -127,7 +127,7 @@
             var ongoingHours = parseInt(ongoingHoursSplit[0]);
             var ongoingMinutes = Math.floor(parseFloat("0." + ongoingHoursSplit[1]) * 60);
 
-            var percent = Math.floor(ongoingStart - currentTime / ongoingEnd * 100);
+            var percent = Math.floor((ongoingHours * 60 * 60 + ongoingMinutes * 60) / (hours * 60 * 60 + minutes * 60 + seconds + ongoingHours * 60 * 60 + ongoingMinutes * 60) * 100);
 
             $("#classroom").text(ongoingLession.classroom);
             $("#percent").text(percent + "%");
