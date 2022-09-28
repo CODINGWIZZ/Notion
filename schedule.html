@@ -132,7 +132,7 @@
             $("#classroom").text(ongoingLession.classroom);
             $("#percent").text(percent + "%");
             $("#subject").text(ongoingLession.subject);
-            $("#countdown").text(hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
+            $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
             $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
             $("#ongoing").text("Pågående " + (ongoingHours == 0 ? ongoingMinutes + "m" : ongoingHours + "h " + ongoingMinutes + "m"));
 
@@ -140,11 +140,11 @@
             if($("#percent").is(":hidden")) $("#percent").fadeIn(200);
           } else {
             if($("#ongoing").is(":visible")) $("#ongoing").fadeOut(200);
-            if($("#percent").is(":visible")) $("#percent").fadeOut(200);
+            if($("#percent").is(":visible")) $("#percent").text("100%").fadeOut(200);
 
             $("#classroom").text(lession.classroom);
             $("#subject").text(lession.subject);
-            $("#countdown").text(lession.countdown.hours.toString().padStart(2, "0") + ":" + lession.countdown.minutes.toString().padStart(2, "0") + ":" + lession.countdown.seconds.toString().padStart(2, "0"));
+            $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
             $("#times").text(lession.start + "-" + lession.end);
           }
         }
