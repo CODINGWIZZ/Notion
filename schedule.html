@@ -127,10 +127,19 @@
             var ongoingHours = parseInt(ongoingHoursSplit[0]);
             var ongoingMinutes = Math.floor(parseFloat("0." + ongoingHoursSplit[1]) * 60);
 
-            var percent = Math.floor((ongoingHours * 60 * 60 + ongoingMinutes * 60) / (hours * 60 * 60 + minutes * 60 + seconds + ongoingHours * 60 * 60 + ongoingMinutes * 60) * 100);
+            var durationDifference = moment.duration(ongoingEnd - ongoingStart);
+            var durationHoursSplit = durationDifference.asSeconds().toString().split(".");
+            var durationHours = parseInt(durationHoursSplit[0]);
+            var durationMinutes = Math.floor(parseFloat("0." + durationHoursSplit[1]) * 60);
+
+            // var percent = Math.floor((ongoingHours * 60 * 60 + ongoingMinutes * 60) / (hours * 60 * 60 + minutes * 60 + seconds + ongoingHours * 60 * 60 + ongoingMinutes * 60) * 100);
+
+            var percent = (ongoingDuration.asSeconds() / durationDifference.asSeconds()) * 100;
+
+            console.log({ percent });
 
             $("#classroom").text(ongoingLession.classroom);
-            $("#percent").text(percent + "%");
+            $("#percent").text(Math.floor(percent) + "%");
             $("#subject").text(ongoingLession.subject);
             $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
             $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
