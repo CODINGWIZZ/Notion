@@ -53,7 +53,7 @@
         var departures = [];
 
         for(var i = 0; i < filter.length; i++) {
-          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination && data.deviations?.[0].consequence !== "CANCELLED");
+          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination && data.deviations && data.deviations[0].consequence !== "CANCELLED");
           if(!departuresFilter[0]) departures.push(filter[i]);
         }
 
