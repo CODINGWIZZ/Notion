@@ -53,8 +53,18 @@
         var departures = [];
 
         for(var i = 0; i < filter.length; i++) {
-          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination && data.deviations && data.deviations[0].consequence !== "CANCELLED");
-          if(!departuresFilter[0]) departures.push(filter[i]);
+          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination);
+          if(!departuresFilter[0]) {
+            var cancelled = false;
+
+            if(filter[i].deviations) {
+              for(var y = 0; y < filter[i].deviations.length; y++) {
+                if(filter[i].deviations[y].consequence === "CANCELLED") cancelled = true;
+              }
+            }
+
+            if(!cancelled) departures.push(filter[i]);
+          }
         }
 
         for(var i = 0; i < 3; i++) {          
