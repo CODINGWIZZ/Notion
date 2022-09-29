@@ -143,12 +143,18 @@
             $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
             $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
             $("#ongoing").text("Pågående " + (ongoingHours == 0 ? ongoingMinutes + "m" : ongoingHours + "h " + ongoingMinutes + "m"));
+            $("#progress>div").css("width", percent + "%");
 
             if($("#ongoing").is(":hidden")) $("#ongoing").fadeIn(200);
             if($("#percent").is(":hidden")) $("#percent").fadeIn(200);
+            if($("#progress").is(":hidden")) $("#progress").fadeIn(200);
           } else {
             if($("#ongoing").is(":visible")) $("#ongoing").fadeOut(200);
             if($("#percent").is(":visible")) $("#percent").text("100%").fadeOut(200);
+            if($("#progress").is(":visible")) {
+              $("#progress").fadeOut(200);
+              $("#progress>div").css("width", "100%");
+            }
 
             $("#classroom").text(lession.classroom);
             $("#subject").text(lession.subject);
@@ -230,13 +236,12 @@
       top: 90px;
       background: #E7E7E7;
       border-radius: 50px;
-      width: 260px;
+      width: 280px;
       height: 5px;
       display: none;
     }
 
     #progress>div {
-      width: 50%;
       background: #000;
       border-radius: 50px;
       height: 5px;
