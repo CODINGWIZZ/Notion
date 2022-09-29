@@ -6,109 +6,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 
-    <title>Embed</title>
+    <title>Schedule</title>
   </head>
   <body>
     <div id="message">
-      <span id="line-1"></span>
-      <span id="destination-1"></span>
-      <span id="time-1"></span>
-      <span id="note-1"></span>
-      <br><br>
-      <span id="line-2"></span>
-      <span id="destination-2"></span>
-      <span id="time-2"></span>
-      <span id="note-2"></span>
-      <br><br>
-      <span id="line-3"></span>
-      <span id="destination-3"></span>
-      <span id="time-3"></span>
-      <span id="note-3"></span>
+      <div id="classroom"></div>
+      <div id="percent"></div>
+      <div id="subject"></div>
+      <div id="countdown"></div>
+      <div id="times"></div>
+      <div id="ongoing"></div>
+      <div id="progress">
+        <div></div>
+      </div>
     </div>
   </body>
   <script>
     $("#message").hide();
 
-    var proxyURL = "https://dev.codingwizz.repl.co/proxy?url=";
-    var URL = "https://webcloud.sl.se/api/v2/departures?mode=departures&origPlaceId=QT0xQE89R3VsbG1hcnNwbGFuIChTdG9ja2hvbG0pQFg9MTgwODA5MzlAWT01OTI5ODQyMkBVPTc0QEw9MzAwMTA5MTg5QEI9MUBwPTE2NjM5ODQ4MjFA&origSiteId=9189&desiredResults=3&origName=Gullmarsplan+%28Stockholm%29";
+    fetch("https://codingwizz.github.io/Notion/schedule.json")
+    .then(res => res.json())
+    .then(data => {
+      setInterval(function() {
+        var day = moment().isoWeekday() - 1;
+        var dayDifference = 0;
 
-    var colors = {
-      "RED": "#EF473D",
-      "BLUE": "#3462B2",
-      "GREEN": "#29A26D"
-    }
+        while(!data[day]) {
+          day++;
+          dayDifference++;
 
-    function getData() {
-      fetch(proxyURL + encodeURIComponent(URL))
-      .then(res => res.json())
-      .then(data => {
-        // var filter = data.filter(data => data.transport.line === "4");
+          if(day > 6) day = 0;
+        }
 
-        var filter = data;
+        var schedule = [];
+        var array = [];
 
-        var departures = {};
+        for(var i = 0; i < data.length; i++) {
+          for(var y = 0; y < data[i].length; y++) {
+            var lession = data[i][y];
 
-        for(var i = 0; i < 3; i++) {          
-          if(filter[i]) {
-            if(filter[i].deviations?.[0].consequence === "CANCELLED") {
-              filter.splice(0, 1);
-              i = -1;
-              continue;
+            var current = moment().format("DD/MM/YYYY");
+            var add = moment(current, "DD/MM/YYYY").add(dayDifference + i - day, "days").add(lession.start.split(":")[0], "hours").add(lession.start.split(":")[1], "minutes").format("DD/MM/YYYY HH:mm");
+
+            if(i >= day) {
+              schedule.push(add);
+
+              lession.date = add;
+              array.push(lession);
             }
-
-            if(departures[filter[i].transport.line] && Object.keys(departures[filter[i].transport.line][filter[i].transport.destination]).length > 1) {
-              filter.splice(i, 1);
-              i--;
-              continue;
-            }
-
-            var currentFilter = data.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination);
-
-            for(var y = 0; y < currentFilter.length; y++) {  
-              if(!departures[currentFilter[y].transport.line]) {
-                departures[currentFilter[y].transport.line] = {};
-                departures[currentFilter[y].transport.line][currentFilter[y].transport.destination] = [ currentFilter[y].time.displayTime ];
-              } else {
-                departures[currentFilter[y].transport.line][currentFilter[y].transport.destination].push(currentFilter[y].time.displayTime);
-              }
-            }
-
-            $("#line-" + (i + 1)).text(filter[i].transport.line);
-            $("#destination-" + (i + 1)).text(filter[i].transport.destination);
-            $("#time-" + (i + 1)).text(filter[i].time.displayTime);
-            
-            if(currentFilter[1]) {
-              $("#note-" + (i + 1)).text(currentFilter[1].time.displayTime);
-            } else {
-              $("#note-" + (i + 1)).text(null);
-            }
-
-            if(filter[i].transport.transportSubType) $("#line-" + (i + 1)).css("background", colors[filter[i].transport.transportSubType.toUpperCase()] || "#000");
-
-            if(filter[i].transport.line.length == 1) {
-              $("#line-" + (i + 1)).css("padding", "3px 14px");
-            } else if(filter[i].transport.line.length < 3) {
-              $("#line-" + (i + 1)).css("padding", "3px 10px"); 
-            } else {
-              $("#line-" + (i + 1)).css("padding", "3px 6px");
-            }
-        
-            $("#message").delay(200).fadeIn(200);
           }
         }
-      });
-    }
 
-    getData();
+        var next = schedule.map(function(s) {
+          return moment(s, "DD/MM/YYYY HH:mm");
+        })
+        .sort(function(m) {
+          return m.valueOf();
+        })
+        .find(function(m) {
+          return m.isAfter();
+        });
 
-    setInterval(function() {
-      getData();
-    }, 30000);
+        if(next) {
+          var date = next.format("DD/MM/YYYY HH:mm");
+
+          var index = array.findIndex(element => {
+            if(element.date === date) return true;
+            return false;
+          });
+
+          var lession = array[index];
+  
+          var currentTime = new Date().getTime();
+          var startTime = moment(lession.date, "DD/MM/YYYY HH:mm").valueOf();
+  
+          var difference = startTime - currentTime;
+          var duration = moment.duration(difference);
+  
+          var hoursSplit = duration.asHours().toString().split(".");
+          var hours = parseInt(hoursSplit[0]);
+  
+          var minutes = Math.floor(parseFloat("0." + hoursSplit[1]) * 60);
+          var seconds = Math.floor(parseFloat("0." + hoursSplit[1]) * 60 * 60) - minutes * 60;
+  
+          lession.countdown = { hours, minutes, seconds };
+
+          function ongoing() {
+            for(var i = 0; i < array.length; i++) {
+              var current = moment();
+              var lessionStart = moment(array[i].date, "DD/MM/YYYY HH:mm");
+              var lessionEnd = moment(array[i].date.replace(array[i].start, array[i].end), "DD/MM/YYYY HH:mm");
+
+              if(current.isBetween(lessionStart, lessionEnd)) return array[i];
+            }
+
+            return false;
+          }
+
+          if(ongoing()) {
+            var ongoingLession = ongoing();
+            var ongoingEnd = moment(ongoingLession.date.replace(ongoingLession.start, ongoingLession.end), "DD/MM/YYYY HH:mm").valueOf();
+
+            var difference = ongoingEnd - currentTime;
+            var duration = moment.duration(difference);
+
+            var hoursSplit = duration.asHours().toString().split(".");
+            var hours = parseInt(hoursSplit[0]);
+
+            var minutes = Math.floor(parseFloat("0." + hoursSplit[1]) * 60);
+            var seconds = Math.floor(parseFloat("0." + hoursSplit[1]) * 60 * 60) - minutes * 60;
+
+            var ongoingStart = moment(ongoingLession.date, "DD/MM/YYYY HH:mm").valueOf();
+            var ongoingTimeDifference = currentTime - ongoingStart;
+            var ongoingDuration = moment.duration(ongoingTimeDifference);
+
+            var ongoingHoursSplit = ongoingDuration.asHours().toString().split(".");
+            var ongoingHours = parseInt(ongoingHoursSplit[0]);
+            var ongoingMinutes = Math.floor(parseFloat("0." + ongoingHoursSplit[1]) * 60);
+
+            var durationDifference = moment.duration(ongoingEnd - ongoingStart);
+            var durationHoursSplit = durationDifference.asSeconds().toString().split(".");
+            var durationHours = parseInt(durationHoursSplit[0]);
+            var durationMinutes = Math.floor(parseFloat("0." + durationHoursSplit[1]) * 60);
+
+            var percent = (ongoingDuration.asSeconds() / durationDifference.asSeconds()) * 100;
+
+            $("#classroom").text(ongoingLession.classroom);
+            $("#percent").text(Math.floor(percent) + "%");
+            $("#subject").text(ongoingLession.subject);
+            $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
+            $("#times").text(ongoingLession.start + "-" + ongoingLession.end);
+            $("#ongoing").text("Pågående " + (ongoingHours == 0 ? ongoingMinutes + "m" : ongoingHours + "h " + ongoingMinutes + "m"));
+
+            if($("#ongoing").is(":hidden")) $("#ongoing").fadeIn(200);
+            if($("#percent").is(":hidden")) $("#percent").fadeIn(200);
+          } else {
+            if($("#ongoing").is(":visible")) $("#ongoing").fadeOut(200);
+            if($("#percent").is(":visible")) $("#percent").text("100%").fadeOut(200);
+
+            $("#classroom").text(lession.classroom);
+            $("#subject").text(lession.subject);
+            $("#countdown").text(hours > 0 ? hours.toString().padStart(2, "0") + ":" + minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0") : minutes.toString().padStart(2, "0") + ":" + seconds.toString().padStart(2, "0"));
+            $("#times").text(lession.start + "-" + lession.end);
+          }
+        }
+      }, 1000);
+
+      $("#message").delay(1000).fadeIn(200);
+    });
   </script>
   <style>
     body, html {
@@ -117,7 +168,7 @@
       top: 0;
       left: 0;
       font-family: "Inter";
-      font-weight: 600;
+      font-weight: 500;
       margin: 2px;
       overflow: hidden;
     }
@@ -126,30 +177,70 @@
       position: absolute;
     }
 
-    #line-1, #line-2, #line-3 {
+    #classroom {
+      float: left;
       background: #000;
       color: #FFF;
-      padding: 3px 6px;
+      padding: 3px 7px;
       border-radius: 2.5px;
+      font-weight: 600;
+      font-size: 11px;
       text-align: center;
-      font-weight: 500;
     }
 
-    #destination-1, #destination-2, #destination-3 {
-      position: fixed;
+    #percent {
+      float: right;
       margin-left: 5px;
-      left: 55px;
+      box-shadow: inset 0px 0px 0px 1.5px #C8C8C8;
+      color: #000;
+      padding: 3px 7px;
+      border-radius: 2.5px;
+      font-weight: 600;
+      font-size: 11px;
+      text-align: center;
+      display: none;
     }
 
-    #time-1, #time-2, #time-3 {
+    #subject {
       position: fixed;
-      left: 290px;
+      top: 30px;
+      font-weight: 700;
     }
 
-    #note-1, #note-2, #note-3 {
+    #countdown {
       position: fixed;
-      opacity: 0.6;
-      left: 350px;
+      top: 30px;
+      left: 200px;
+    }
+
+    #times {
+      position: fixed;
+      top: 55px;
+    }
+
+    #ongoing {
+      position: fixed;
+      top: 55px;
+      left: 200px;
+      opacity: 0.7;
+    }
+
+    #progress {
+      position: fixed;
+      top: 90px;
+      background: #E7E7E7;
+      border-radius: 50px;
+      width: 260px;
+      height: 5px;
+      display: none;
+    }
+
+    #progress>div {
+      width: 50%;
+      background: #000;
+      border-radius: 50px;
+      height: 5px;
+      transition: 1s;
     }
   </style>
 </html>
