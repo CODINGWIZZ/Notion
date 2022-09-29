@@ -53,18 +53,12 @@
         var departures = [];
 
         for(var i = 0; i < filter.length; i++) {
-          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination);
+          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination && data.deviations?.[0].consequence !== "CANCELLED");
           if(!departuresFilter[0]) departures.push(filter[i]);
         }
 
         for(var i = 0; i < 3; i++) {          
           if(departures[i]) {
-            if(departures[i].deviations?.[0].consequence === "CANCELLED") {
-              filter.splice(0, 1);
-              i = -1;
-              continue;
-            }
-
             var currentFilter = data.filter(data => data.transport.line === departures[i].transport.line && data.transport.destination === departures[i].transport.destination);
 
             $("#line-" + (i + 1)).text(departures[i].transport.line);
