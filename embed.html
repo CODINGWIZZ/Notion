@@ -50,37 +50,26 @@
         // var filter = data.filter(data => data.transport.line === "4");
 
         var filter = data;
+        var departures = [];
 
-        var departures = {};
+        for(var i = 0; i < filter.length; i++) {
+          var departuresFilter = departures.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination);
+          if(!departuresFilter[0]) departures.push(filter[i]);
+        }
 
         for(var i = 0; i < 3; i++) {          
-          if(filter[i]) {
-            if(filter[i].deviations?.[0].consequence === "CANCELLED") {
+          if(departures[i]) {
+            if(departures[i].deviations?.[0].consequence === "CANCELLED") {
               filter.splice(0, 1);
               i = -1;
               continue;
             }
 
-            if(departures[filter[i].transport.line] && Object.keys(departures[filter[i].transport.line][filter[i].transport.destination]).length > 1) {
-              filter.splice(i, 1);
-              i--;
-              continue;
-            }
+            var currentFilter = data.filter(data => data.transport.line === departures[i].transport.line && data.transport.destination === departures[i].transport.destination);
 
-            var currentFilter = data.filter(data => data.transport.line === filter[i].transport.line && data.transport.destination === filter[i].transport.destination);
-
-            for(var y = 0; y < currentFilter.length; y++) {  
-              if(!departures[currentFilter[y].transport.line]) {
-                departures[currentFilter[y].transport.line] = {};
-                departures[currentFilter[y].transport.line][currentFilter[y].transport.destination] = [ currentFilter[y].time.displayTime ];
-              } else {
-                departures[currentFilter[y].transport.line][currentFilter[y].transport.destination].push(currentFilter[y].time.displayTime);
-              }
-            }
-
-            $("#line-" + (i + 1)).text(filter[i].transport.line);
-            $("#destination-" + (i + 1)).text(filter[i].transport.destination);
-            $("#time-" + (i + 1)).text(filter[i].time.displayTime);
+            $("#line-" + (i + 1)).text(departures[i].transport.line);
+            $("#destination-" + (i + 1)).text(departures[i].transport.destination);
+            $("#time-" + (i + 1)).text(departures[i].time.displayTime);
             
             if(currentFilter[1]) {
               $("#note-" + (i + 1)).text(currentFilter[1].time.displayTime);
@@ -88,11 +77,11 @@
               $("#note-" + (i + 1)).text(null);
             }
 
-            if(filter[i].transport.transportSubType) $("#line-" + (i + 1)).css("background", colors[filter[i].transport.transportSubType.toUpperCase()] || "#000");
+            if(departures[i].transport.transportSubType) $("#line-" + (i + 1)).css("background", colors[departures[i].transport.transportSubType.toUpperCase()] || "#000");
 
-            if(filter[i].transport.line.length == 1) {
+            if(departures[i].transport.line.length == 1) {
               $("#line-" + (i + 1)).css("padding", "3px 14px");
-            } else if(filter[i].transport.line.length < 3) {
+            } else if(departures[i].transport.line.length < 3) {
               $("#line-" + (i + 1)).css("padding", "3px 10px"); 
             } else {
               $("#line-" + (i + 1)).css("padding", "3px 6px");
