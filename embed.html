@@ -35,7 +35,7 @@
     $("#message").hide();
 
     var proxyURL = "https://dev.codingwizz.repl.co/proxy?url=";
-    var URL = "https://webcloud.sl.se/api/v2/departures?mode=departures&origPlaceId=QT0xQE89R3VsbG1hcnNwbGFuIChTdG9ja2hvbG0pQFg9MTgwODA5MzlAWT01OTI5ODQyMkBVPTc0QEw9MzAwMTA5MTg5QEI9MUBwPTE2NjM5ODQ4MjFA&origSiteId=9189&desiredResults=3&origName=Gullmarsplan+%28Stockholm%29";
+    var URL = "https://webcloud.sl.se/api/v2/departures?mode=departures&origPlaceId=QT0xQE89TsOkdGdyw6RuZCAoU3RvY2tob2xtKUBYPTE4MDg1OTkxQFk9NTkzMDYwNTRAVT03NEBMPTMwMDEwMTMxOUBCPTFAcD0xNjYzMDM0NDI2QA%3D%3D&origSiteId=1319&desiredResults=3&origName=N%C3%A4tgr%C3%A4nd+%28Stockholm%29";
 
     var colors = {
       "RED": "#EF473D",
@@ -71,9 +71,9 @@
           if(departures[i]) {
             var currentFilter = data.filter(data => data.transport.line === departures[i].transport.line && data.transport.destination === departures[i].transport.destination);
 
-            $("#line-" + (i + 1)).text(departures[i].transport.line);
-            $("#destination-" + (i + 1)).text(departures[i].transport.destination);
-            $("#time-" + (i + 1)).text(departures[i].time.displayTime);
+            $("#line-" + (i + 1)).text(departures[i].transport.line).show();
+            $("#destination-" + (i + 1)).text(departures[i].transport.destination).show();
+            $("#time-" + (i + 1)).text(departures[i].time.displayTime).show();
             
             if(currentFilter[1]) {
               $("#note-" + (i + 1)).text(currentFilter[1].time.displayTime);
@@ -92,6 +92,10 @@
             }
         
             $("#message").delay(200).fadeIn(200);
+          } else {
+            $("#line-" + (i + 1)).hide();
+            $("#destination" + (i + 1)).hide();
+            $("#time-" + (i + 1)).hide();
           }
         }
       });
